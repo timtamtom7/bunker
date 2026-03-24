@@ -1,0 +1,89 @@
+/* ============================================
+   DECISION CARD
+   ============================================ */
+
+.decision-card {
+  display: block;
+  padding: var(--space-5);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-normal) var(--ease-out),
+    background var(--duration-normal) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.decision-card:hover {
+  transform: translateY(-1px);
+}
+
+.decision-card:active {
+  transform: scale(0.99);
+}
+
+/* ── Header ─────────────────────────────── */
+.decision-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+/* ── Title ──────────────────────────────── */
+.decision-card-title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text);
+  line-height: var(--leading-tight);
+  margin-bottom: var(--space-2);
+}
+
+/* ── Problem ─────────────────────────────── */
+.decision-card-problem {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+  margin-bottom: var(--space-3);
+}
+
+/* ── Outcome ─────────────────────────────── */
+.decision-card-outcome {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-success);
+  margin-bottom: var(--space-3);
+}
+
+.decision-card-outcome strong {
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ── Footer ──────────────────────────────── */
+.decision-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.decision-card-date {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.decision-card-arrow {
+  color: var(--text-muted);
+  transition: transform var(--duration-fast) var(--ease-out),
+              color var(--duration-fast) var(--ease-out);
+}
+
+.decision-card:hover .decision-card-arrow {
+  transform: translateX(2px);
+  color: var(--color-accent);
+}

@@ -1,0 +1,108 @@
+/* ============================================
+   LAYOUT — Header & Navigation
+   ============================================ */
+
+.layout-landing {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.layout-app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ─────────────────────────────── */
+.layout-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  background: rgba(13, 13, 14, 0.85);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="light"] .layout-header {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.layout-header-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ── Logo ──────────────────────────────── */
+.layout-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: var(--tracking-tight);
+  text-decoration: none;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.layout-logo:hover {
+  opacity: 0.8;
+  color: var(--text);
+}
+
+.layout-logo svg {
+  color: var(--color-accent);
+}
+
+/* ── Nav ───────────────────────────────── */
+.layout-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.nav-link {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out),
+              background var(--duration-fast) var(--ease-out);
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.nav-link.active {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ── Main ──────────────────────────────── */
+.layout-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Mobile ─────────────────────────────── */
+@media (max-width: 640px) {
+  .layout-header-inner {
+    padding: 0 var(--space-4);
+  }
+
+  .layout-logo span {
+    display: none;
+  }
+}

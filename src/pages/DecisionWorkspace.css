@@ -1,0 +1,299 @@
+/* ============================================
+   DECISION WORKSPACE (shared by NewDecision & DecisionDetail)
+   ============================================ */
+
+.workspace-page {
+  max-width: 720px;
+}
+
+/* ── Header ─────────────────────────────── */
+.workspace-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  padding: var(--space-2) var(--space-2);
+  border-radius: var(--radius-sm);
+  transition: color var(--duration-fast) var(--ease-out),
+              background var(--duration-fast) var(--ease-out);
+}
+
+.back-btn:hover {
+  color: var(--text);
+  background: var(--surface-elevated);
+}
+
+.workspace-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* ── Title row ──────────────────────────── */
+.workspace-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.workspace-title {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  flex: 1;
+}
+
+.workspace-badges {
+  display: flex;
+  gap: var(--space-2);
+  padding-top: var(--space-1);
+  flex-shrink: 0;
+}
+
+/* ── Form ───────────────────────────────── */
+.workspace-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+  margin-top: var(--space-4);
+}
+
+/* ── Options ─────────────────────────────── */
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-3);
+}
+
+.option-number {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.add-option-btn {
+  align-self: flex-start;
+}
+
+/* ── View sections ──────────────────────── */
+.workspace-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.ws-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.ws-section-label {
+  /* label class */
+}
+
+.ws-section-mono {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  color: var(--text);
+  line-height: var(--leading-relaxed);
+}
+
+/* ── View options ───────────────────────── */
+.view-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.view-option {
+  padding: var(--space-5);
+}
+
+.view-option-name {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: var(--space-4);
+}
+
+.view-option-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.view-option-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.view-option-value {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+/* ── Empty field ─────────────────────────── */
+.empty-field {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: var(--text-sm);
+}
+
+/* ── Deadline text ───────────────────────── */
+.deadline-text {
+  font-size: var(--text-base);
+}
+
+.deadline-overdue,
+.deadline-today {
+  color: var(--color-warning);
+}
+
+/* ── Deadline banner ─────────────────────── */
+.deadline-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-6);
+}
+
+.deadline-banner-urgent {
+  border-color: var(--color-warning);
+  color: var(--color-warning);
+  background: var(--color-warning-subtle);
+}
+
+/* ── Decided outcome box ─────────────────── */
+.decided-outcome-box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.decided-chosen {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-base);
+  color: var(--color-success);
+}
+
+.decided-chosen strong {
+  color: var(--text);
+}
+
+.decided-why,
+.decided-again {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+.decided-again strong {
+  color: var(--text);
+}
+
+/* ── Delete confirm ─────────────────────── */
+.delete-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-modal);
+  animation: overlayIn var(--duration-normal) var(--ease-out) both;
+}
+
+.delete-confirm {
+  background: var(--surface-card);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  max-width: 360px;
+  width: calc(100% - 32px);
+  animation: modalIn var(--duration-slow) var(--ease-out) both;
+}
+
+.delete-confirm h3 {
+  font-size: var(--text-lg);
+  margin-bottom: var(--space-2);
+}
+
+.delete-confirm p {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-5);
+}
+
+.delete-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── Not found ──────────────────────────── */
+.workspace-not-found {
+  text-align: center;
+  padding: var(--space-16) 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.workspace-not-found h2 {
+  font-size: var(--text-2xl);
+}
+
+.workspace-not-found p {
+  color: var(--text-secondary);
+}

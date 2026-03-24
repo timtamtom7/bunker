@@ -1,13 +1,17 @@
 import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, Outlet } from 'react-router-dom';
 import './Layout.css';
 
-export default function Layout({ children, showNav = true }) {
+export default function Layout() {
   const location = useLocation();
   const isLanding = location.pathname === '/';
 
   if (isLanding) {
-    return <div className="layout-landing">{children}</div>;
+    return (
+      <div className="layout-landing">
+        <Outlet />
+      </div>
+    );
   }
 
   return (
@@ -33,7 +37,7 @@ export default function Layout({ children, showNav = true }) {
         </div>
       </header>
       <main className="layout-main">
-        {children}
+        <Outlet />
       </main>
     </div>
   );

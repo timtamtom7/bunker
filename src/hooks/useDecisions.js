@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   getDecisions,
+  getDecision,
   saveDecision,
   deleteDecision as removeDecision,
 } from '../utils/storage';
@@ -37,9 +38,10 @@ export function useDecisions() {
     setDecisions(prev => prev.filter(d => d.id !== id));
   }, []);
 
+  // Read directly from storage to avoid state timing issues
   const get = useCallback((id) => {
-    return decisions.find(d => d.id === id) || null;
-  }, [decisions]);
+    return getDecision(id);
+  }, []);
 
   return { decisions, loading, reload: load, create, update, remove, get };
 }

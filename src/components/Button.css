@@ -82,6 +82,15 @@
   transform: translateY(-1px);
 }
 
+[data-theme="light"] .btn-danger:hover:not(:disabled) {
+  background: var(--color-error);
+}
+
+[data-theme="light"] .btn-danger {
+  background: var(--color-error);
+  color: #ffffff;
+}
+
 /* ── Icon button ───────────────────────── */
 .btn-icon {
   width: 36px;

@@ -48,22 +48,29 @@ export function getDecision(id) {
 
 export function saveDecision(decision) {
   const data = loadData();
-  const idx = data.decisions.findIndex(d => d.id === decision.id);
   const now = new Date().toISOString();
 
-  if (idx >= 0) {
-    data.decisions[idx] = { ...data.decisions[idx], ...decision, updatedAt: now };
-  } else {
-    data.decisions.unshift({
-      ...decision,
-      id: decision.id || crypto.randomUUID(),
-      createdAt: now,
-      updatedAt: now,
-    });
+  if (decision.id) {
+    // Update existing
+    const idx = data.decisions.findIndex(d => d.id === decision.id);
+    if (idx >= 0) {
+      data.decisions[idx] = { ...data.decisions[idx], ...decision, updatedAt: now };
+      saveData(data);
+      return data.decisions[idx];
+    }
   }
 
+  // Create new
+  const newId = decision.id || crypto.randomUUID();
+  const newDecision = {
+    ...decision,
+    id: newId,
+    createdAt: now,
+    updatedAt: now,
+  };
+  data.decisions.unshift(newDecision);
   saveData(data);
-  return data.decisions.find(d => d.id === decision.id);
+  return newDecision;
 }
 
 export function deleteDecision(id) {

@@ -21,6 +21,7 @@ export default function DecidedOutcome() {
       ? decision.wouldChooseAgain
       : ''
   );
+  const [outcome, setOutcome] = useState(decision?.outcome || '');
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -39,6 +40,7 @@ export default function DecidedOutcome() {
     const errs = {};
     if (chosenOption === '' || chosenOption === null) errs.option = 'Select the option you chose.';
     if (wouldChooseAgain === '' || wouldChooseAgain === null) errs.again = 'Answer the reflection question.';
+    if (!outcome) errs.outcome = 'Mark the outcome — good, neutral, or bad.';
     return errs;
   }
 
@@ -54,6 +56,7 @@ export default function DecidedOutcome() {
       decisionWhy: decisionWhy.trim() || null,
       wouldChooseAgain: wouldChooseAgain === true || wouldChooseAgain === 'true',
       decidedAt: decision.decidedAt || new Date().toISOString(),
+      outcome: outcome || null,
     });
     navigate(`/app/decisions/${id}`);
   }
@@ -149,6 +152,42 @@ export default function DecidedOutcome() {
                 <div className="radio-dot" />
                 <div className="radio-text">
                   <div className="radio-title">{val ? 'Yes, absolutely' : 'Not sure / would reconsider'}</div>
+                </div>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Outcome */}
+        <div className="field">
+          <label className="label">How did it turn out?</label>
+          {errors.outcome && <span className="field-error">{errors.outcome}</span>}
+          <div className="outcome-selector">
+            {['good', 'neutral', 'bad'].map(val => (
+              <label
+                key={val}
+                className={`outcome-option outcome-option-${val} ${outcome === val ? 'selected' : ''}`}
+              >
+                <input
+                  type="radio"
+                  name="outcome"
+                  value={val}
+                  checked={outcome === val}
+                  onChange={() => setOutcome(val)}
+                  style={{ display: 'none' }}
+                />
+                <div className="outcome-dot" />
+                <div className="outcome-text">
+                  <div className="outcome-title">
+                    {val === 'good' && 'Good'}
+                    {val === 'neutral' && 'Neutral'}
+                    {val === 'bad' && 'Not great'}
+                  </div>
+                  <div className="outcome-desc">
+                    {val === 'good' && 'Came out positive — happy with the call'}
+                    {val === 'neutral' && 'Mixed feelings, or it\'s still unfolding'}
+                    {val === 'bad' && 'Regretted the decision — wouldn\'t choose again'}
+                  </div>
                 </div>
               </label>
             ))}

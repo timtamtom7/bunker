@@ -77,3 +77,78 @@
   border-top: 1px solid var(--border);
   margin-top: var(--space-4);
 }
+
+/* ── Outcome selector ──────────────────── */
+.outcome-selector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.outcome-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-out),
+              background var(--duration-fast) var(--ease-out);
+}
+
+.outcome-option:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-elevated);
+}
+
+.outcome-option.selected {
+  border-width: 1.5px;
+}
+
+.outcome-option-good.selected {
+  border-color: var(--color-success);
+  background: var(--color-success-subtle);
+}
+
+.outcome-option-neutral.selected {
+  border-color: var(--text-muted);
+  background: var(--surface-elevated);
+}
+
+.outcome-option-bad.selected {
+  border-color: var(--color-error);
+  background: var(--color-error-subtle);
+}
+
+.outcome-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.outcome-option-good .outcome-dot { background: var(--color-success); }
+.outcome-option-neutral .outcome-dot { background: var(--text-muted); }
+.outcome-option-bad .outcome-dot { background: var(--color-error); }
+
+.outcome-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.outcome-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.outcome-desc {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+}
+

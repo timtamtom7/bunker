@@ -3,7 +3,9 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useDecisions } from '../hooks/useDecisions';
 import { useSubscription } from '../hooks/useSubscription';
 import Button from '../components/Button';
-import { deadlineLabel, deadlineStatus, toDateInputValue } from '../utils/helpers';
+import AIAdviceCard from '../components/AIAdviceCard';
+import { deadlineLabel, deadlineStatus, toDateInputValue, daysUntil } from '../utils/helpers';
+import { exportDecisionToPDF } from '../utils/pdfExport';
 import './DecisionWorkspace.css';
 
 const EMPTY_OPTION = { name: '', sixMonths: '', worst: '', best: '' };
@@ -19,6 +21,9 @@ export default function DecisionDetail() {
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [saveError, setSaveError] = useState(null);
+  const [pdfExporting, setPdfExporting] = useState(false);
+  const [pdfError, setPdfError] = useState(null);
+  const [checkinDismissed, setCheckinDismissed] = useState(false);
   const { isPro } = useSubscription();
 
   // Monitor online/offline
@@ -136,6 +141,18 @@ export default function DecisionDetail() {
   const dlLabel = deadlineLabel(decision.deadline);
   const isDecided = decision.status === 'decided';
   const canRecordOutcome = isDecided && !decision.chosenOption && !decision.decidedAt;
+  const daysToDeadline = daysUntil(decision.deadline);
+  const showCheckin = !editing && !isDecided && decision.deadline && !checkinDismissed && (daysToDeadline === null || daysToDeadline <= 2);
+
+  async function handleExportPDF() {
+    setPdfExporting(true);
+    setPdfError(null);
+    const result = exportDecisionToPDF(decision);
+    if (!result.success) {
+      setPdfError(result.error || 'Export failed. Please try again.');
+    }
+    setPdfExporting(false);
+  }
 
   return (
     <div className="page workspace-page">
@@ -149,6 +166,12 @@ export default function DecisionDetail() {
         <div className="workspace-header-actions">
           {!editing && (
             <>
+              <Button variant="ghost" size="sm" loading={pdfExporting} onClick={handleExportPDF} title="Export as PDF">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                PDF
+              </Button>
               {isDecided ? (
                 <Link to={`/app/decisions/${id}/decided`}>
                   <Button variant="secondary" size="sm">View Outcome</Button>
@@ -216,14 +239,60 @@ export default function DecisionDetail() {
         </div>
       )}
 
-      {/* Deadline banner */}
-      {!editing && decision.deadline && decision.status !== 'decided' && (
+      {/* Check-in reminder banner */}
+      {!editing && showCheckin && (
+        <div className={`checkin-banner ${daysToDeadline < 0 ? 'checkin-banner-overdue' : daysToDeadline === 0 ? 'checkin-banner-today' : 'checkin-banner-soon'}`}>
+          <div className="checkin-banner-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" strokeWidth="1.5"/>
+              <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <div className="checkin-banner-content">
+            <strong>
+              {daysToDeadline < 0
+                ? `Your deadline was ${dlLabel}.`
+                : daysToDeadline === 0
+                ? 'Your deadline is today.'
+                : `Your deadline is in ${daysToDeadline} day${daysToDeadline === 1 ? '' : 's'}.`}
+            </strong>
+            <span> Have you decided yet?</span>
+          </div>
+          <div className="checkin-banner-actions">
+            <Link to={`/app/decisions/${id}/decided`}>
+              <Button size="sm" variant={daysToDeadline < 0 ? 'primary' : 'secondary'}>
+                Yes, I decided
+              </Button>
+            </Link>
+            <Button size="sm" variant="ghost" onClick={() => setCheckinDismissed(true)}>
+              Not yet
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Simple deadline banner (for non-checkin deadlines) */}
+      {!editing && decision.deadline && decision.status !== 'decided' && !showCheckin && (
         <div className={`deadline-banner ${dlStatus === 'overdue' || dlStatus === 'today' ? 'deadline-banner-urgent' : ''}`}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
             <polyline points="12 6 12 12 16 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
           </svg>
           Deadline: {dlLabel}
+        </div>
+      )}
+
+      {/* PDF export error */}
+      {pdfError && (
+        <div className="workspace-save-error">
+          <span className="workspace-save-error-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
+              <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          </span>
+          {pdfError}
         </div>
       )}
 
@@ -389,12 +458,24 @@ export default function DecisionDetail() {
             </WorkspaceSection>
           )}
 
+          {/* AI Advice card */}
+          {!isDecided && decision.options && decision.options.length >= 2 && (
+            <WorkspaceSection title="">
+              <AIAdviceCard decision={decision} />
+            </WorkspaceSection>
+          )}
+
           {isDecided && decision.chosenOption !== null && decision.options?.[decision.chosenOption] && (
             <WorkspaceSection title="Decision Made" mono>
               <div className="decided-outcome-box">
                 <div className="decided-chosen">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   Chose: <strong>{decision.options[decision.chosenOption].name}</strong>
+                  {decision.outcome && (
+                    <span className={`decided-outcome-tag decided-outcome-${decision.outcome}`}>
+                      {decision.outcome}
+                    </span>
+                  )}
                 </div>
                 {decision.decisionWhy && (
                   <p className="decided-why">{decision.decisionWhy}</p>

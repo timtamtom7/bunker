@@ -231,6 +231,36 @@
   color: var(--text);
 }
 
+/* ── Decided outcome tag ──────────────── */
+.decided-outcome-tag {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: 1px solid;
+  border-radius: var(--radius-full);
+  padding: 1px 7px;
+  margin-left: var(--space-2);
+}
+
+.decided-outcome-good {
+  color: var(--color-success);
+  border-color: var(--color-success);
+  background: var(--color-success-subtle);
+}
+
+.decided-outcome-neutral {
+  color: var(--text-secondary);
+  border-color: var(--border-strong);
+  background: var(--surface-elevated);
+}
+
+.decided-outcome-bad {
+  color: var(--color-error);
+  border-color: var(--color-error);
+  background: var(--color-error-subtle);
+}
+
 /* ── Delete confirm ─────────────────────── */
 .delete-confirm-overlay {
   position: fixed;
@@ -439,3 +469,90 @@
   color: var(--color-warning);
   flex-shrink: 0;
 }
+
+/* ── Check-in banner ─────────────────────── */
+.checkin-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-5);
+  animation: checkinIn var(--duration-reveal) var(--ease-out) both;
+}
+
+@keyframes checkinIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.checkin-banner-soon {
+  background: var(--color-accent-subtle);
+  border: 1px solid rgba(91, 141, 239, 0.3);
+}
+
+.checkin-banner-today {
+  background: var(--color-warning-subtle);
+  border: 1px solid rgba(245, 166, 35, 0.4);
+}
+
+.checkin-banner-overdue {
+  background: var(--color-error-subtle);
+  border: 1px solid rgba(229, 72, 77, 0.35);
+}
+
+.checkin-banner-icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkin-banner-soon .checkin-banner-icon {
+  background: rgba(91, 141, 239, 0.2);
+  color: var(--color-accent);
+}
+
+.checkin-banner-today .checkin-banner-icon {
+  background: rgba(245, 166, 35, 0.2);
+  color: var(--color-warning);
+}
+
+.checkin-banner-overdue .checkin-banner-icon {
+  background: rgba(229, 72, 77, 0.2);
+  color: var(--color-error);
+}
+
+.checkin-banner-content {
+  flex: 1;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-normal);
+}
+
+.checkin-banner-content strong {
+  color: var(--text);
+}
+
+.checkin-banner-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+@media (max-width: 540px) {
+  .checkin-banner {
+    flex-wrap: wrap;
+  }
+  .checkin-banner-content {
+    flex: 1 1 100%;
+    order: 2;
+  }
+  .checkin-banner-actions {
+    order: 3;
+  }
+}
+

@@ -6,6 +6,7 @@ import Feed from './pages/Feed';
 import NewDecision from './pages/NewDecision';
 import DecisionDetail from './pages/DecisionDetail';
 import DecidedOutcome from './pages/DecidedOutcome';
+import History from './pages/History';
 import Settings from './pages/Settings';
 import Pricing from './pages/Pricing';
 import Onboarding, { hasCompletedOnboarding } from './components/Onboarding';
@@ -77,6 +78,7 @@ function AppShell() {
             <Route path="decisions/new" element={<NewDecision />} />
             <Route path="decisions/:id" element={<DecisionDetail />} />
             <Route path="decisions/:id/decided" element={<DecidedOutcome />} />
+            <Route path="history" element={<History />} />
             <Route path="settings" element={<Settings />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

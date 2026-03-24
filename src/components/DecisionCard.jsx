@@ -8,6 +8,11 @@ export default function DecisionCard({ decision }) {
 
   const statusClass = status === 'decided' ? 'badge-decided' : 'badge-active';
   const statusLabel = status === 'decided' ? 'Decided' : 'Active';
+  const outcomeColor = decision.outcome === 'good'
+    ? 'var(--color-success)'
+    : decision.outcome === 'bad'
+    ? 'var(--color-error)'
+    : null;
 
   const dlStatus = deadlineStatus(deadline);
   const dlLabel = deadlineLabel(deadline);
@@ -21,6 +26,9 @@ export default function DecisionCard({ decision }) {
         <span className={`badge ${statusClass}`}>{statusLabel}</span>
         {deadline && status !== 'decided' && (
           <span className={`badge badge-deadline ${dlUrgent ? 'pulse-urgent' : ''}`}>{dlLabel}</span>
+        )}
+        {status === 'decided' && outcomeColor && (
+          <span className="decision-outcome-dot" style={{ background: outcomeColor }} title={`Outcome: ${decision.outcome}`} />
         )}
       </div>
 

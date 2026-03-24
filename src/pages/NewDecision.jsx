@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useDecisions } from '../hooks/useDecisions';
+import { useSubscription } from '../hooks/useSubscription';
 import Button from '../components/Button';
 import { toDateInputValue } from '../utils/helpers';
 import './DecisionWorkspace.css';
@@ -9,6 +10,7 @@ const EMPTY_OPTION = { name: '', sixMonths: '', worst: '', best: '' };
 
 export default function NewDecision() {
   const { create } = useDecisions();
+  const { isFree, canAdd, activeCount, limit } = useSubscription();
   const navigate = useNavigate();
 
   const [title, setTitle] = useState('');
@@ -20,6 +22,48 @@ export default function NewDecision() {
   const [regretAnswer, setRegretAnswer] = useState('');
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState({});
+
+  // Free users at limit can't create new decisions
+  if (isFree && !canAdd) {
+    return (
+      <div className="page workspace-page">
+        <div className="workspace-header">
+          <button className="back-btn btn-ghost" onClick={() => navigate('/app')}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Back
+          </button>
+        </div>
+        <div className="workspace-limit-block">
+          <div className="workspace-limit-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" strokeWidth="1.5"/>
+              <rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor" opacity="0.5"/>
+            </svg>
+          </div>
+          <h2 className="workspace-limit-title">Decision limit reached</h2>
+          <p className="workspace-limit-desc">
+            Your Free plan allows {limit} active decisions.
+            You've reached that limit with {activeCount} decisions.
+          </p>
+          <p className="workspace-limit-desc">
+            Mark one of your existing decisions as decided, or{' '}
+            <Link to="/pricing" style={{ color: 'var(--color-accent)' }}>upgrade to Pro</Link>{' '}
+            for unlimited decisions.
+          </p>
+          <div className="workspace-limit-actions">
+            <Button variant="secondary" onClick={() => navigate('/app')}>
+              View my decisions
+            </Button>
+            <Link to="/pricing">
+              <Button>Upgrade to Pro</Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   function validate() {
     const errs = {};

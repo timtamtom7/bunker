@@ -7,6 +7,8 @@ import NewDecision from './pages/NewDecision';
 import DecisionDetail from './pages/DecisionDetail';
 import DecidedOutcome from './pages/DecidedOutcome';
 import Settings from './pages/Settings';
+import Pricing from './pages/Pricing';
+import Onboarding, { hasCompletedOnboarding } from './components/Onboarding';
 import './styles/global.css';
 import './styles/forms.css';
 
@@ -20,7 +22,6 @@ function PageTransition({ children }) {
 
   useEffect(() => {
     if (location.pathname !== prevPathRef.current) {
-      // Navigating to a different page
       setPhase('exiting');
       prevPathRef.current = location.pathname;
 
@@ -30,10 +31,10 @@ function PageTransition({ children }) {
 
         const enterTimer = setTimeout(() => {
           setPhase('idle');
-        }, 300); // matches pageIn duration
+        }, 300);
 
         return () => clearTimeout(enterTimer);
-      }, 150); // exit duration
+      }, 150);
 
       return () => clearTimeout(exitTimer);
     }
@@ -54,12 +55,23 @@ function PageTransition({ children }) {
   );
 }
 
-export default function App() {
+function AppShell() {
+  const [showOnboarding, setShowOnboarding] = useState(!hasCompletedOnboarding());
+
+  function handleOnboardingComplete() {
+    setShowOnboarding(false);
+  }
+
+  if (showOnboarding) {
+    return <Onboarding onComplete={handleOnboardingComplete} />;
+  }
+
   return (
     <BrowserRouter>
       <PageTransition>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/pricing" element={<Pricing />} />
           <Route path="/app" element={<Layout />}>
             <Route index element={<Feed />} />
             <Route path="decisions/new" element={<NewDecision />} />
@@ -72,4 +84,8 @@ export default function App() {
       </PageTransition>
     </BrowserRouter>
   );
+}
+
+export default function App() {
+  return <AppShell />;
 }

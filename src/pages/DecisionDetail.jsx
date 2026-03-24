@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useDecisions } from '../hooks/useDecisions';
+import { useSubscription } from '../hooks/useSubscription';
 import Button from '../components/Button';
 import { deadlineLabel, deadlineStatus, toDateInputValue } from '../utils/helpers';
 import './DecisionWorkspace.css';
@@ -17,6 +18,21 @@ export default function DecisionDetail() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [saveError, setSaveError] = useState(null);
+  const { isPro } = useSubscription();
+
+  // Monitor online/offline
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => { setIsOnline(false); setSaveError('You are offline. Changes cannot be saved until you reconnect.'); };
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // Editable fields
   const [title, setTitle] = useState(decision?.title || '');
@@ -30,10 +46,34 @@ export default function DecisionDetail() {
   if (!decision) {
     return (
       <div className="page workspace-page">
-        <div className="workspace-not-found">
-          <h2>Decision not found</h2>
-          <p>This decision may have been deleted.</p>
-          <Link to="/app"><Button>Back to Decisions</Button></Link>
+        <div className="workspace-header">
+          <button className="back-btn btn-ghost" onClick={() => navigate('/app')}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Back
+          </button>
+        </div>
+        <div className="workspace-error">
+          <div className="workspace-error-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+              <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="1.5"/>
+              <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M11 8v4M11 15h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          </div>
+          <h2 className="workspace-error-title">Decision not found</h2>
+          <p className="workspace-error-desc">
+            This decision may have been deleted, or the link might be incorrect.
+          </p>
+          <div className="workspace-error-actions">
+            <Button variant="secondary" onClick={() => navigate('/app')}>
+              Back to Decisions
+            </Button>
+            <Button onClick={() => navigate('/app/decisions/new')}>
+              Create New Decision
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -48,8 +88,14 @@ export default function DecisionDetail() {
   async function handleSave(e) {
     e.preventDefault();
     if (!validate()) return;
+    if (!isOnline) {
+      setSaveError('Cannot save while offline. Please reconnect and try again.');
+      return;
+    }
     setSaving(true);
-    update({
+    setSaveError(null);
+    try {
+      update({
       id: decision.id,
       title: title.trim(),
       status,
@@ -59,6 +105,11 @@ export default function DecisionDetail() {
       deadline: deadline || null,
       regretAnswer: regretAnswer.trim() || null,
     });
+    } catch (err) {
+      setSaveError('Failed to save. Please try again.');
+      setSaving(false);
+      return;
+    }
     setEditing(false);
     setSaving(false);
   }
@@ -126,6 +177,30 @@ export default function DecisionDetail() {
           )}
         </div>
       </div>
+
+      {/* Offline notice */}
+      {!isOnline && (
+        <div className="offline-notice">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M1 1l22 22M8.59 13.51A6 6 0 0115.5 7.5M16.41 16.49A6 6 0 018.5 16.5M5 12.49a15.9 15.9 0 014.5-4.5M19 12.49a15.9 15.9 0 00-4.5-4.5M12 20h.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          You're offline. Changes cannot be saved until you reconnect.
+        </div>
+      )}
+
+      {/* Save error */}
+      {saveError && (
+        <div className="workspace-save-error">
+          <span className="workspace-save-error-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
+              <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <line x1="12" y1="16" x2="12.01" y2="16" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          </span>
+          {saveError}
+        </div>
+      )}
 
       {/* Delete confirm */}
       {showDeleteConfirm && (

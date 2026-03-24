@@ -30,6 +30,12 @@
   line-height: var(--leading-relaxed);
 }
 
+.empty-state-secondary {
+  margin-top: var(--space-3);
+  max-width: 360px;
+  text-align: center;
+}
+
 .empty-state-action {
   margin-top: var(--space-6);
 }

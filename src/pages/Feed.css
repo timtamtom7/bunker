@@ -94,3 +94,106 @@
   color: var(--text-muted);
   font-size: var(--text-sm);
 }
+
+/* ── Loading dots ─────────────────────── */
+.feed-loading-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.feed-loading-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  animation: loadPulse 1.2s ease-in-out infinite;
+}
+
+.feed-loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.feed-loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes loadPulse {
+  0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1); }
+}
+
+/* ── Offline banner ────────────────────── */
+.feed-offline-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-warning-subtle);
+  border: 1px solid var(--color-warning);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--color-warning);
+  margin-bottom: var(--space-5);
+}
+
+/* ── Limit banner ─────────────────────── */
+.feed-limit-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-warning-subtle);
+  border: 1px solid rgba(245, 166, 35, 0.3);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-5);
+}
+
+.feed-limit-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.feed-limit-info svg {
+  color: var(--color-warning);
+  flex-shrink: 0;
+}
+
+.feed-limit-link {
+  background: none;
+  border: none;
+  color: var(--color-accent);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  padding: 0;
+}
+
+.feed-limit-link:hover {
+  text-decoration: underline;
+}
+
+/* ── Upgrade nudge ────────────────────── */
+.feed-upgrade-nudge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  margin-top: var(--space-4);
+  border-color: var(--color-accent);
+  background: var(--color-accent-subtle);
+}
+
+.feed-upgrade-nudge-icon {
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.feed-upgrade-nudge-text {
+  flex: 1;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-normal);
+}
+
+.feed-upgrade-nudge-text strong {
+  color: var(--text);
+}

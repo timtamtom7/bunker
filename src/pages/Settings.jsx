@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useSettings } from '../hooks/useSettings';
 import { useSubscription } from '../hooks/useSubscription';
+import { useNotifications } from '../hooks/useNotifications';
 import { PLANS, PLAN_LIMITS, PLAN_FEATURES } from '../utils/storage';
 import Button from '../components/Button';
 import { exportData } from '../utils/storage';
@@ -42,8 +43,10 @@ function LockBadge() {
 export default function Settings() {
   const { settings, toggleTheme, update } = useSettings();
   const { subscription, upgrade, activeCount, limit, unlimited } = useSubscription();
+  const { permission, enabled, requestPermission } = useNotifications();
   const navigate = useNavigate();
   const [exported, setExported] = useState(false);
+  const [notifRequested, setNotifRequested] = useState(false);
 
   function handleExport() {
     exportData();
@@ -210,6 +213,71 @@ export default function Settings() {
                 <span className="toggle-thumb" />
               </span>
             </label>
+          </div>
+        </section>
+
+        {/* Notifications */}
+        <section className="settings-section card-glass">
+          <h2 className="settings-section-title">Notifications</h2>
+
+          <div className="settings-row">
+            <div className="settings-row-info">
+              <div className="settings-row-label">Browser notifications</div>
+              <div className="settings-row-desc">
+                {permission === 'granted'
+                  ? 'Notifications are enabled. You\'ll get deadline reminders.'
+                  : permission === 'denied'
+                  ? 'Notifications are blocked by your browser. Enable them in browser settings.'
+                  : 'Enable browser notifications to get deadline reminders and check-ins.'}
+              </div>
+            </div>
+            {permission !== 'granted' && permission !== 'denied' && (
+              <Button
+                size="sm"
+                variant="secondary"
+                loading={notifRequested}
+                onClick={async () => {
+                  setNotifRequested(true);
+                  await requestPermission();
+                  setNotifRequested(false);
+                }}
+              >
+                Enable
+              </Button>
+            )}
+            {permission === 'granted' && (
+              <span style={{ fontSize: 'var(--text-sm)', color: 'var(--color-success)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <polyline points="20 6 9 17 4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Enabled
+              </span>
+            )}
+            {permission === 'denied' && (
+              <span style={{ fontSize: 'var(--text-sm)', color: 'var(--color-warning)' }}>
+                Blocked
+              </span>
+            )}
+          </div>
+
+          <div className="settings-row">
+            <div className="settings-row-info">
+              <div className="settings-row-label">Notification schedule</div>
+              <div className="settings-row-desc">
+                Bunker sends notifications at these moments:
+              </div>
+              <ul style={{ marginTop: 'var(--space-2)', paddingLeft: 'var(--space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
+                <li style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
+                  <strong style={{ color: 'var(--text-secondary)' }}>2 days before</strong> deadline — reminder to decide
+                </li>
+                <li style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
+                  <strong style={{ color: 'var(--text-secondary)' }}>On deadline day</strong> — have you decided?
+                </li>
+                <li style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
+                  <strong style={{ color: 'var(--text-secondary)' }}>1 week after</strong> deadline — how did it go?
+                </li>
+              </ul>
+            </div>
           </div>
         </section>
 

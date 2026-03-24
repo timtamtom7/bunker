@@ -191,3 +191,137 @@ export function exportData() {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+// ============================================
+// BUNKER — Collaborators & Comments
+// ============================================
+
+const COLLAB_KEY = 'bunker_collaborators';
+const COMMENTS_KEY = 'bunker_comments';
+const PRESENCE_KEY = 'bunker_presence';
+
+export function getCollaborators(decisionId) {
+  try {
+    const raw = localStorage.getItem(COLLAB_KEY);
+    if (!raw) return [];
+    const collabs = JSON.parse(raw);
+    return collabs[decisionId] || [];
+  } catch {
+    return [];
+  }
+}
+
+export function addCollaborator(decisionId, collaborator) {
+  const collab = {
+    ...collaborator,
+    id: collaborator.id || crypto.randomUUID(),
+    addedAt: new Date().toISOString(),
+  };
+  try {
+    const raw = localStorage.getItem(COLLAB_KEY);
+    const collabs = raw ? JSON.parse(raw) : {};
+    if (!collabs[decisionId]) collabs[decisionId] = [];
+    const existing = collabs[decisionId].findIndex(c => c.email === collaborator.email);
+    if (existing >= 0) {
+      collabs[decisionId][existing] = { ...collabs[decisionId][existing], ...collab };
+    } else {
+      collabs[decisionId].push(collab);
+    }
+    localStorage.setItem(COLLAB_KEY, JSON.stringify(collabs));
+  } catch (e) {
+    console.warn('Bunker: could not save collaborator', e);
+  }
+  return collab;
+}
+
+export function removeCollaborator(decisionId, collaboratorId) {
+  try {
+    const raw = localStorage.getItem(COLLAB_KEY);
+    const collabs = raw ? JSON.parse(raw) : {};
+    if (collabs[decisionId]) {
+      collabs[decisionId] = collabs[decisionId].filter(c => c.id !== collaboratorId);
+      localStorage.setItem(COLLAB_KEY, JSON.stringify(collabs));
+    }
+  } catch (e) {
+    console.warn('Bunker: could not remove collaborator', e);
+  }
+}
+
+export function getComments(decisionId) {
+  try {
+    const raw = localStorage.getItem(COMMENTS_KEY);
+    if (!raw) return [];
+    const allComments = JSON.parse(raw);
+    return (allComments[decisionId] || []).sort((a, b) =>
+      new Date(a.createdAt) - new Date(b.createdAt)
+    );
+  } catch {
+    return [];
+  }
+}
+
+export function addComment(decisionId, comment) {
+  const newComment = {
+    ...comment,
+    id: crypto.randomUUID(),
+    createdAt: new Date().toISOString(),
+  };
+  try {
+    const raw = localStorage.getItem(COMMENTS_KEY);
+    const allComments = raw ? JSON.parse(raw) : {};
+    if (!allComments[decisionId]) allComments[decisionId] = [];
+    allComments[decisionId].push(newComment);
+    localStorage.setItem(COMMENTS_KEY, JSON.stringify(allComments));
+  } catch (e) {
+    console.warn('Bunker: could not save comment', e);
+  }
+  return newComment;
+}
+
+export function deleteComment(decisionId, commentId) {
+  try {
+    const raw = localStorage.getItem(COMMENTS_KEY);
+    const allComments = raw ? JSON.parse(raw) : {};
+    if (allComments[decisionId]) {
+      allComments[decisionId] = allComments[decisionId].filter(c => c.id !== commentId);
+      localStorage.setItem(COMMENTS_KEY, JSON.stringify(allComments));
+    }
+  } catch (e) {
+    console.warn('Bunker: could not delete comment', e);
+  }
+}
+
+// Presence: simulate who's viewing by storing last-seen timestamps
+export function setPresence(decisionId, userId, userName) {
+  try {
+    const raw = localStorage.getItem(PRESENCE_KEY);
+    const presence = raw ? JSON.parse(raw) : {};
+    if (!presence[decisionId]) presence[decisionId] = {};
+    presence[decisionId][userId] = {
+      name: userName,
+      lastSeen: new Date().toISOString(),
+    };
+    // Clean up stale presence (> 2 minutes old)
+    const cutoff = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+    Object.keys(presence[decisionId]).forEach(uid => {
+      if (presence[decisionId][uid].lastSeen < cutoff) {
+        delete presence[decisionId][uid];
+      }
+    });
+    localStorage.setItem(PRESENCE_KEY, JSON.stringify(presence));
+  } catch (e) {
+    console.warn('Bunker: could not update presence', e);
+  }
+}
+
+export function getPresence(decisionId) {
+  try {
+    const raw = localStorage.getItem(PRESENCE_KEY);
+    if (!raw) return [];
+    const presence = JSON.parse(raw);
+    const users = presence[decisionId] || {};
+    return Object.entries(users).map(([id, data]) => ({ id, ...data }));
+  } catch {
+    return [];
+  }
+}

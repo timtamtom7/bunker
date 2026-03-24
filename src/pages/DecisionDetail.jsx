@@ -4,6 +4,13 @@ import { useDecisions } from '../hooks/useDecisions';
 import { useSubscription } from '../hooks/useSubscription';
 import Button from '../components/Button';
 import AIAdviceCard from '../components/AIAdviceCard';
+import DecisionTimeline from '../components/DecisionTimeline';
+import ProsConsChart from '../components/ProsConsChart';
+import RegretMeter from '../components/RegretMeter';
+import ConfidenceGauge from '../components/ConfidenceGauge';
+import CollaboratorsPanel from '../components/CollaboratorsPanel';
+import CommentsThread from '../components/CommentsThread';
+import PresenceIndicator from '../components/PresenceIndicator';
 import { deadlineLabel, deadlineStatus, toDateInputValue, daysUntil } from '../utils/helpers';
 import { exportDecisionToPDF } from '../utils/pdfExport';
 import './DecisionWorkspace.css';
@@ -24,6 +31,7 @@ export default function DecisionDetail() {
   const [pdfExporting, setPdfExporting] = useState(false);
   const [pdfError, setPdfError] = useState(null);
   const [checkinDismissed, setCheckinDismissed] = useState(false);
+  const [viewTab, setViewTab] = useState('details'); // 'details' | 'analysis' | 'collaborate'
   const { isPro } = useSubscription();
 
   // Monitor online/offline
@@ -305,6 +313,42 @@ export default function DecisionDetail() {
         </div>
       </div>
 
+      {/* View mode tabs */}
+      {!editing && (
+        <div className="view-tabs">
+          <button
+            className={`view-tab ${viewTab === 'details' ? 'active' : ''}`}
+            onClick={() => setViewTab('details')}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+              <path d="M9 12h6M12 9v6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            Details
+          </button>
+          <button
+            className={`view-tab ${viewTab === 'analysis' ? 'active' : ''}`}
+            onClick={() => setViewTab('analysis')}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+              <path d="M3 3v18h18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M7 14l4-4 4 4 5-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Analysis
+          </button>
+          <button
+            className={`view-tab ${viewTab === 'collaborate' ? 'active' : ''}`}
+            onClick={() => setViewTab('collaborate')}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="1.5"/>
+              <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            Collaborate
+          </button>
+        </div>
+      )}
+
       {editing ? (
         <form onSubmit={handleSave} className="workspace-form" noValidate>
           {/* Status */}
@@ -401,92 +445,124 @@ export default function DecisionDetail() {
         </form>
       ) : (
         <div className="workspace-view stagger-in">
-          <WorkspaceSection title="The Problem" mono>
-            {decision.problem || <span className="empty-field">Not specified</span>}
-          </WorkspaceSection>
+          {/* ── DETAILS TAB ─────────────────────────── */}
+          {viewTab === 'details' && (
+            <>
+              <WorkspaceSection title="The Problem" mono>
+                {decision.problem || <span className="empty-field">Not specified</span>}
+              </WorkspaceSection>
 
-          <WorkspaceSection title={`Options (${decision.options?.length || 0})`} mono>
-            {(!decision.options || decision.options.length === 0) ? (
-              <span className="empty-field">No options added</span>
-            ) : (
-              <div className="view-options">
-                {decision.options.map((opt, idx) => (
-                  <div key={idx} className="view-option card-glass">
-                    <div className="view-option-name">{opt.name}</div>
-                    {opt.sixMonths && (
-                      <div className="view-option-row">
-                        <span className="view-option-label">6 months / 2 years</span>
-                        <span className="view-option-value">{opt.sixMonths}</span>
+              <WorkspaceSection title={`Options (${decision.options?.length || 0})`} mono>
+                {(!decision.options || decision.options.length === 0) ? (
+                  <span className="empty-field">No options added</span>
+                ) : (
+                  <div className="view-options">
+                    {decision.options.map((opt, idx) => (
+                      <div key={idx} className="view-option card-glass">
+                        <div className="view-option-name">{opt.name}</div>
+                        {opt.sixMonths && (
+                          <div className="view-option-row">
+                            <span className="view-option-label">6 months / 2 years</span>
+                            <span className="view-option-value">{opt.sixMonths}</span>
+                          </div>
+                        )}
+                        {opt.worst && (
+                          <div className="view-option-row">
+                            <span className="view-option-label">Worst case</span>
+                            <span className="view-option-value">{opt.worst}</span>
+                          </div>
+                        )}
+                        {opt.best && (
+                          <div className="view-option-row">
+                            <span className="view-option-label">Best case</span>
+                            <span className="view-option-value">{opt.best}</span>
+                          </div>
+                        )}
                       </div>
+                    ))}
+                  </div>
+                )}
+              </WorkspaceSection>
+
+              {decision.tradeoffs && (
+                <WorkspaceSection title="Tradeoffs" mono>
+                  {decision.tradeoffs}
+                </WorkspaceSection>
+              )}
+
+              {decision.deadline && (
+                <WorkspaceSection title="Deadline" mono>
+                  <span className={`deadline-text deadline-${dlStatus}`}>
+                    {new Date(decision.deadline).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                    {' — '}{dlLabel}
+                  </span>
+                </WorkspaceSection>
+              )}
+
+              {decision.regretAnswer && (
+                <WorkspaceSection title="Regret Check" mono>
+                  {decision.regretAnswer}
+                </WorkspaceSection>
+              )}
+
+              {/* AI Advice card */}
+              {!isDecided && decision.options && decision.options.length >= 2 && (
+                <WorkspaceSection title="">
+                  <AIAdviceCard decision={decision} />
+                </WorkspaceSection>
+              )}
+
+              {isDecided && decision.chosenOption !== null && decision.options?.[decision.chosenOption] && (
+                <WorkspaceSection title="Decision Made" mono>
+                  <div className="decided-outcome-box">
+                    <div className="decided-chosen">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      Chose: <strong>{decision.options[decision.chosenOption].name}</strong>
+                      {decision.outcome && (
+                        <span className={`decided-outcome-tag decided-outcome-${decision.outcome}`}>
+                          {decision.outcome}
+                        </span>
+                      )}
+                    </div>
+                    {decision.decisionWhy && (
+                      <p className="decided-why">{decision.decisionWhy}</p>
                     )}
-                    {opt.worst && (
-                      <div className="view-option-row">
-                        <span className="view-option-label">Worst case</span>
-                        <span className="view-option-value">{opt.worst}</span>
-                      </div>
-                    )}
-                    {opt.best && (
-                      <div className="view-option-row">
-                        <span className="view-option-label">Best case</span>
-                        <span className="view-option-value">{opt.best}</span>
-                      </div>
+                    {decision.wouldChooseAgain !== null && (
+                      <p className="decided-again">
+                        Would choose again: <strong>{decision.wouldChooseAgain ? 'Yes' : 'No'}</strong>
+                      </p>
                     )}
                   </div>
-                ))}
+                </WorkspaceSection>
+              )}
+            </>
+          )}
+
+          {/* ── ANALYSIS TAB ─────────────────────────── */}
+          {viewTab === 'analysis' && (
+            <div className="view-analysis">
+              <div className="analysis-gauges">
+                <ConfidenceGauge decision={decision} />
+                <RegretMeter decision={decision} />
               </div>
-            )}
-          </WorkspaceSection>
-
-          {decision.tradeoffs && (
-            <WorkspaceSection title="Tradeoffs" mono>
-              {decision.tradeoffs}
-            </WorkspaceSection>
+              {decision.options && decision.options.length >= 2 && (
+                <ProsConsChart decision={decision} />
+              )}
+              <DecisionTimeline decision={decision} />
+            </div>
           )}
 
-          {decision.deadline && (
-            <WorkspaceSection title="Deadline" mono>
-              <span className={`deadline-text deadline-${dlStatus}`}>
-                {new Date(decision.deadline).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
-                {' — '}{dlLabel}
-              </span>
-            </WorkspaceSection>
-          )}
-
-          {decision.regretAnswer && (
-            <WorkspaceSection title="Regret Check" mono>
-              {decision.regretAnswer}
-            </WorkspaceSection>
-          )}
-
-          {/* AI Advice card */}
-          {!isDecided && decision.options && decision.options.length >= 2 && (
-            <WorkspaceSection title="">
-              <AIAdviceCard decision={decision} />
-            </WorkspaceSection>
-          )}
-
-          {isDecided && decision.chosenOption !== null && decision.options?.[decision.chosenOption] && (
-            <WorkspaceSection title="Decision Made" mono>
-              <div className="decided-outcome-box">
-                <div className="decided-chosen">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                  Chose: <strong>{decision.options[decision.chosenOption].name}</strong>
-                  {decision.outcome && (
-                    <span className={`decided-outcome-tag decided-outcome-${decision.outcome}`}>
-                      {decision.outcome}
-                    </span>
-                  )}
-                </div>
-                {decision.decisionWhy && (
-                  <p className="decided-why">{decision.decisionWhy}</p>
-                )}
-                {decision.wouldChooseAgain !== null && (
-                  <p className="decided-again">
-                    Would choose again: <strong>{decision.wouldChooseAgain ? 'Yes' : 'No'}</strong>
-                  </p>
-                )}
-              </div>
-            </WorkspaceSection>
+          {/* ── COLLABORATE TAB ──────────────────────── */}
+          {viewTab === 'collaborate' && (
+            <div className="view-collaborate">
+              <PresenceIndicator decisionId={decision.id} currentUser="You" />
+              <CollaboratorsPanel decisionId={decision.id} currentUser="You" />
+              <CommentsThread
+                decisionId={decision.id}
+                options={decision.options}
+                currentUser="You"
+              />
+            </div>
           )}
         </div>
       )}

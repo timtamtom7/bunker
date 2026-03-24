@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useDecisions } from '../hooks/useDecisions';
 import { useSubscription } from '../hooks/useSubscription';
 import Button from '../components/Button';
+import DecisionTemplates from '../components/DecisionTemplates';
 import { toDateInputValue } from '../utils/helpers';
 import './DecisionWorkspace.css';
 
@@ -22,6 +23,8 @@ export default function NewDecision() {
   const [regretAnswer, setRegretAnswer] = useState('');
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [appliedTemplate, setAppliedTemplate] = useState(null);
 
   // Free users at limit can't create new decisions
   if (isFree && !canAdd) {
@@ -109,6 +112,20 @@ export default function NewDecision() {
     if (options.length > 2) setOptions(opts => opts.filter((_, i) => i !== idx));
   }
 
+  function handleSelectTemplate(template) {
+    if (template.prefill) {
+      if (template.prefill.problem) setProblem(template.prefill.problem);
+      if (template.prefill.options) {
+        const prefilledOpts = template.prefill.options.map(o => ({ ...EMPTY_OPTION, ...o }));
+        setOptions(prefilledOpts.length >= 2 ? prefilledOpts : [ ...EMPTY_OPTION, ...EMPTY_OPTION ]);
+      }
+      if (template.prefill.tradeoffs) setTradeoffs(template.prefill.tradeoffs);
+      if (template.prefill.regretAnswer) setRegretAnswer(template.prefill.regretAnswer);
+      setAppliedTemplate(template.name);
+    }
+    setShowTemplates(false);
+  }
+
   return (
     <div className="page workspace-page">
       <div className="workspace-header">
@@ -119,6 +136,51 @@ export default function NewDecision() {
           Back
         </button>
         <h1 className="workspace-title">New Decision</h1>
+      </div>
+
+      {/* Template selector */}
+      <div className="template-selector">
+        <div className="template-selector-header">
+          {!showTemplates ? (
+            <button
+              type="button"
+              className="template-start-btn"
+              onClick={() => setShowTemplates(true)}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="1.5"/>
+                <line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" strokeWidth="1.5"/>
+                <line x1="9" y1="21" x2="9" y2="9" stroke="currentColor" strokeWidth="1.5"/>
+              </svg>
+              Start from a template
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="template-start-btn"
+              onClick={() => setShowTemplates(false)}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+              Close templates
+            </button>
+          )}
+          {appliedTemplate && !showTemplates && (
+            <span className="template-applied-badge">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+                <polyline points="20 6 9 17 4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Template applied: {appliedTemplate}
+            </span>
+          )}
+        </div>
+        {showTemplates && (
+          <DecisionTemplates
+            onSelect={handleSelectTemplate}
+            onClose={() => setShowTemplates(false)}
+          />
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="workspace-form" noValidate>

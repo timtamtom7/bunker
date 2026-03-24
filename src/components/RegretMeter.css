@@ -1,0 +1,127 @@
+/* ============================================
+   REGRET PROBABILITY METER
+   ============================================ */
+
+.regret-meter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.regret-meter-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.regret-meter-expand {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  transition: color var(--duration-fast);
+}
+
+.regret-meter-expand:hover {
+  color: var(--text-secondary);
+}
+
+.regret-meter-body {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.regret-gauge {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  flex-shrink: 0;
+}
+
+.regret-gauge svg {
+  display: block;
+}
+
+.regret-gauge-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.regret-gauge-value {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  font-family: var(--font-mono);
+  line-height: 1;
+  transition: color var(--duration-slow);
+}
+
+.regret-gauge-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.regret-meter-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.regret-level {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.regret-description {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+.regret-factors {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.regret-factor {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.factor-positive {
+  color: var(--color-success);
+}
+
+.factor-negative {
+  color: var(--color-warning);
+}
+
+.regret-factor svg {
+  flex-shrink: 0;
+}

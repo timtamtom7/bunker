@@ -1,0 +1,102 @@
+/* ============================================
+   PRESENCE INDICATOR
+   ============================================ */
+
+.presence-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.presence-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.presence-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-success);
+  animation: presencePulse 3s ease-in-out infinite;
+}
+
+@keyframes presencePulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(48, 164, 108, 0.4); }
+  50% { opacity: 0.8; box-shadow: 0 0 0 4px rgba(48, 164, 108, 0); }
+}
+
+.presence-text {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.presence-avatars {
+  display: flex;
+  align-items: center;
+}
+
+.presence-avatar-wrapper,
+.presence-avatar-you-wrapper {
+  margin-left: -6px;
+  border-radius: 50%;
+  border: 2px solid var(--surface-bg);
+  position: relative;
+}
+
+.presence-avatar-wrapper:first-child,
+.presence-avatar-you-wrapper:first-child {
+  margin-left: 0;
+}
+
+.presence-avatar {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: white;
+  font-family: var(--font-sans);
+}
+
+.presence-avatar-you {
+  border: 2px solid var(--color-accent);
+}
+
+.presence-overflow {
+  margin-left: -4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--surface-elevated);
+  border: 2px solid var(--surface-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+.presence-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.presence-count {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.presence-names {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}

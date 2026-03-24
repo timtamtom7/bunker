@@ -1,0 +1,160 @@
+/* ============================================
+   PROS/CONS VISUAL WEIGHT CHART
+   ============================================ */
+
+.proscons-chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.proscons-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.proscons-option-tabs {
+  display: flex;
+  gap: var(--space-1);
+  margin-left: auto;
+}
+
+.proscons-tab {
+  padding: 3px var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  font-family: var(--font-sans);
+}
+
+.proscons-tab:hover {
+  color: var(--text-secondary);
+  background: var(--surface-hover);
+}
+
+.proscons-tab.active {
+  color: var(--color-accent);
+  background: var(--color-accent-subtle);
+  border-color: rgba(91, 141, 239, 0.3);
+}
+
+.proscons-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.proscons-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.proscons-label {
+  width: 40px;
+  flex-shrink: 0;
+}
+
+.pros-label,
+.cons-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.pros-label { color: var(--color-success); }
+.cons-label { color: var(--color-error); }
+
+.proscons-bar-track {
+  flex: 1;
+  height: 20px;
+  background: var(--surface-elevated);
+  border-radius: var(--radius-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.proscons-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: var(--radius-sm);
+  transition: width var(--duration-slow) var(--ease-out);
+  min-width: 2px;
+}
+
+.pros-bar {
+  background: linear-gradient(90deg, var(--color-success), rgba(48, 164, 108, 0.6));
+}
+
+.cons-bar {
+  background: linear-gradient(90deg, var(--color-error), rgba(229, 72, 77, 0.6));
+}
+
+.proscons-bar-value {
+  position: absolute;
+  right: var(--space-2);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
+.proscons-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.proscons-net {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.proscons-net-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.proscons-net-value {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+
+.net-positive .proscons-net-value { color: var(--color-success); }
+.net-negative .proscons-net-value { color: var(--color-error); }
+
+.proscons-detail-counts {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.detail-count {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}

@@ -53,6 +53,8 @@
   --text-4xl:  30px;
   --text-5xl:  36px;
   --text-6xl:  48px;
+  --text-7xl:  60px;
+  --text-8xl:  72px;
 
   /* Spacing (4px base) */
   --space-1:  4px;
@@ -87,6 +89,11 @@
   --shadow-sm:  0 1px 4px rgba(0, 0, 0, 0.25);
   --shadow-md:  0 4px 16px rgba(0, 0, 0, 0.22);
   --shadow-lg:  0 12px 40px rgba(0, 0, 0, 0.28);
+
+  /* Z-index */
+  --z-sticky: 100;
+  --z-modal: 200;
+  --z-overlay: 150;
 
   /* Easing */
   --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
@@ -138,6 +145,9 @@ body {
   font-size: var(--text-base);
   line-height: var(--leading-normal);
   background-color: var(--surface-bg);
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(91, 141, 239, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(91, 141, 239, 0.04) 0%, transparent 50%);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -218,10 +228,36 @@ a:hover { color: var(--color-accent-hover); }
 }
 
 /* ── Page wrapper ──────────────────────── */
+.page-wrapper {
+  will-change: opacity, transform;
+}
+
 .page {
   max-width: 720px;
   margin: 0 auto;
   padding: var(--space-12) var(--space-6);
+}
+
+/* Exiting animation (fade out + slide up) */
+.page-exiting {
+  animation: pageOut 150ms var(--ease-out) both;
+  pointer-events: none;
+}
+
+@keyframes pageOut {
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+/* Entering animation (fade in + slide up) — triggers pageIn */
+.page-entering .page {
+  animation: pageIn var(--duration-page) var(--ease-out) both;
+}
+
+/* Base page entrance (always runs on mount) */
+.page {
   animation: pageIn var(--duration-page) var(--ease-out) both;
 }
 
@@ -238,30 +274,36 @@ a:hover { color: var(--color-accent-hover); }
 
 /* ── Glass card ─────────────────────────── */
 .card-glass {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-lg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   transition: border-color var(--duration-normal) var(--ease-out),
-              background var(--duration-normal) var(--ease-out);
+              background var(--duration-normal) var(--ease-out),
+              transform var(--duration-normal) var(--ease-out),
+              box-shadow var(--duration-normal) var(--ease-out);
 }
 
 .card-glass:hover {
-  border-color: var(--border-strong);
-  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.07);
 }
 
 /* ── Stagger animation ─────────────────── */
 .stagger-in > * {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(12px);
   animation: staggerUp var(--duration-reveal) var(--ease-out) forwards;
 }
 .stagger-in > *:nth-child(1)  { animation-delay: 0ms; }
-.stagger-in > *:nth-child(2)  { animation-delay: 60ms; }
-.stagger-in > *:nth-child(3)  { animation-delay: 120ms; }
-.stagger-in > *:nth-child(4)  { animation-delay: 180ms; }
-.stagger-in > *:nth-child(5)  { animation-delay: 240ms; }
-.stagger-in > *:nth-child(6)  { animation-delay: 300ms; }
+.stagger-in > *:nth-child(2)  { animation-delay: 80ms; }
+.stagger-in > *:nth-child(3)  { animation-delay: 160ms; }
+.stagger-in > *:nth-child(4)  { animation-delay: 240ms; }
+.stagger-in > *:nth-child(5)  { animation-delay: 320ms; }
+.stagger-in > *:nth-child(6)  { animation-delay: 400ms; }
+.stagger-in > *:nth-child(7)  { animation-delay: 480ms; }
+.stagger-in > *:nth-child(8)  { animation-delay: 560ms; }
 
 @keyframes staggerUp {
   to { opacity: 1; transform: translateY(0); }
@@ -299,6 +341,15 @@ a:hover { color: var(--color-accent-hover); }
 .badge-deadline {
   background: var(--color-warning-subtle);
   color: var(--color-warning);
+}
+
+.pulse-urgent {
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.75; box-shadow: 0 0 8px rgba(245, 166, 35, 0.5); }
 }
 
 /* ── Mobile ─────────────────────────────── */

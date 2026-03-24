@@ -11,7 +11,7 @@ export default function DecisionCard({ decision }) {
 
   const dlStatus = deadlineStatus(deadline);
   const dlLabel = deadlineLabel(deadline);
-  const dlClass = dlStatus === 'overdue' || dlStatus === 'today' ? 'badge-deadline' : '';
+  const dlUrgent = dlStatus === 'overdue' || dlStatus === 'today';
 
   const chosenOptionName = options?.[chosenOption]?.name || null;
 
@@ -20,7 +20,7 @@ export default function DecisionCard({ decision }) {
       <div className="decision-card-header">
         <span className={`badge ${statusClass}`}>{statusLabel}</span>
         {deadline && status !== 'decided' && (
-          <span className={`badge ${dlClass}`}>{dlLabel}</span>
+          <span className={`badge badge-deadline ${dlUrgent ? 'pulse-urgent' : ''}`}>{dlLabel}</span>
         )}
       </div>
 

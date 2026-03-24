@@ -10,15 +10,17 @@
   transition:
     border-color var(--duration-normal) var(--ease-out),
     background var(--duration-normal) var(--ease-out),
-    transform var(--duration-fast) var(--ease-out);
+    transform var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out);
 }
 
 .decision-card:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .decision-card:active {
-  transform: scale(0.99);
+  transform: scale(0.97);
 }
 
 /* ── Header ─────────────────────────────── */

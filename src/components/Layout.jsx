@@ -30,6 +30,9 @@ export default function Layout() {
             <Link to="/app" className={`nav-link ${location.pathname === '/app' ? 'active' : ''}`}>
               Decisions
             </Link>
+            <Link to="/app/community" className={`nav-link ${location.pathname === '/app/community' ? 'active' : ''}`}>
+              Community
+            </Link>
             <Link to="/app/history" className={`nav-link ${location.pathname === '/app/history' ? 'active' : ''}`}>
               History
             </Link>

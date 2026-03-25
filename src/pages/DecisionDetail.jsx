@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useDecisions } from '../hooks/useDecisions';
 import { useSubscription } from '../hooks/useSubscription';
+import { useSettings } from '../hooks/useSettings';
 import Button from '../components/Button';
 import AIAdviceCard from '../components/AIAdviceCard';
 import DecisionTimeline from '../components/DecisionTimeline';
@@ -13,6 +14,7 @@ import CommentsThread from '../components/CommentsThread';
 import PresenceIndicator from '../components/PresenceIndicator';
 import { deadlineLabel, deadlineStatus, toDateInputValue, daysUntil } from '../utils/helpers';
 import { exportDecisionToPDF } from '../utils/pdfExport';
+import { exportToCalendar, buildGoogleCalendarUrl, exportToNotion, generateShareLink, downloadShareImage, postToSlack } from '../utils/exporters';
 import './DecisionWorkspace.css';
 
 const EMPTY_OPTION = { name: '', sixMonths: '', worst: '', best: '' };
@@ -32,7 +34,14 @@ export default function DecisionDetail() {
   const [pdfError, setPdfError] = useState(null);
   const [checkinDismissed, setCheckinDismissed] = useState(false);
   const [viewTab, setViewTab] = useState('details'); // 'details' | 'analysis' | 'collaborate'
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const [slackSending, setSlackSending] = useState(false);
+  const [slackSent, setSlackSent] = useState(false);
+  const [slackError, setSlackError] = useState(null);
+  const [shareLinkCopied, setShareLinkCopied] = useState(false);
+  const [exporting, setExporting] = useState(null); // 'calendar' | 'notion' | 'image'
   const { isPro } = useSubscription();
+  const { settings } = useSettings();
 
   // Monitor online/offline
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -162,6 +171,62 @@ export default function DecisionDetail() {
     setPdfExporting(false);
   }
 
+  function handleCalendarExport() {
+    const result = exportToCalendar(decision);
+    if (!result.success) {
+      setPdfError(result.error);
+    }
+    setShowExportMenu(false);
+  }
+
+  function handleGoogleCalendar() {
+    const url = buildGoogleCalendarUrl(decision);
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+    setShowExportMenu(false);
+  }
+
+  function handleNotionExport() {
+    setExporting('notion');
+    exportToNotion(decision);
+    setTimeout(() => setExporting(null), 1000);
+    setShowExportMenu(false);
+  }
+
+  function handleShareImage() {
+    setExporting('image');
+    downloadShareImage(decision).then(() => setExporting(null));
+    setShowExportMenu(false);
+  }
+
+  async function handleSlack() {
+    if (!settings.slackWebhook) {
+      setSlackError('Slack not connected. Add webhook in Settings.');
+      return;
+    }
+    setSlackSending(true);
+    setSlackError(null);
+    const result = await postToSlack(decision, settings.slackWebhook);
+    setSlackSending(false);
+    if (result.success) {
+      setSlackSent(true);
+      setTimeout(() => setSlackSent(false), 3000);
+    } else {
+      setSlackError('Failed to send to Slack. Check webhook URL in Settings.');
+    }
+    setShowExportMenu(false);
+  }
+
+  function handleCopyShareLink() {
+    const link = generateShareLink(decision);
+    navigator.clipboard.writeText(link).then(() => {
+      setShareLinkCopied(true);
+      setTimeout(() => setShareLinkCopied(false), 2000);
+    });
+    setShowExportMenu(false);
+  }
+
   return (
     <div className="page workspace-page">
       <div className="workspace-header">
@@ -180,6 +245,86 @@ export default function DecisionDetail() {
                 </svg>
                 PDF
               </Button>
+              <div className="export-menu-wrap" style={{ position: 'relative' }}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowExportMenu(s => !s)}
+                  title="More export options"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="5" r="1.5" fill="currentColor"/>
+                    <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                    <circle cx="12" cy="19" r="1.5" fill="currentColor"/>
+                  </svg>
+                  Export
+                </Button>
+                {showExportMenu && (
+                  <>
+                    <div className="export-menu-backdrop" onClick={() => setShowExportMenu(false)} />
+                    <div className="export-menu card-glass">
+                      {decision.deadline && (
+                        <>
+                          <button className="export-menu-item" onClick={handleCalendarExport}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                              <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+                              <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                              <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                              <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="1.5"/>
+                            </svg>
+                            Add to Calendar (.ics)
+                          </button>
+                          <button className="export-menu-item" onClick={handleGoogleCalendar}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
+                              <polyline points="12 6 12 12 16 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                            </svg>
+                            Open in Google Calendar
+                          </button>
+                          <div className="export-menu-divider" />
+                        </>
+                      )}
+                      <button className="export-menu-item" onClick={handleNotionExport}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                          <path d="M4 4h12l4 4v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" stroke="currentColor" strokeWidth="1.5"/>
+                          <path d="M12 4v8h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                        </svg>
+                        Export to Notion (.md)
+                      </button>
+                      <button className="export-menu-item" onClick={handleShareImage}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                          <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+                          <circle cx="8.5" cy="8.5" r="1.5" stroke="currentColor" strokeWidth="1.5"/>
+                          <polyline points="21 15 16 10 5 21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        Download Share Image
+                      </button>
+                      <div className="export-menu-divider" />
+                      <button className="export-menu-item" onClick={handleCopyShareLink}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                          <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                          <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                        </svg>
+                        {shareLinkCopied ? 'Link copied!' : 'Copy share link'}
+                      </button>
+                      <button className="export-menu-item" onClick={handleSlack} disabled={slackSending}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                          <path d="M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z" stroke="currentColor" strokeWidth="1.5"/>
+                          <path d="M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" stroke="currentColor" strokeWidth="1.5"/>
+                          <path d="M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z" stroke="currentColor" strokeWidth="1.5"/>
+                          <path d="M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z" stroke="currentColor" strokeWidth="1.5"/>
+                          <path d="M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z" stroke="currentColor" strokeWidth="1.5"/>
+                          <path d="M10 9.5C10 8.67 9.33 8 8.5 8H3.5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z" stroke="currentColor" strokeWidth="1.5"/>
+                        </svg>
+                        {slackSent ? 'Sent to Slack!' : 'Post to Slack'}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+              {slackError && (
+                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-danger)', marginLeft: 'var(--space-2)' }}>{slackError}</div>
+              )}
               {isDecided ? (
                 <Link to={`/app/decisions/${id}/decided`}>
                   <Button variant="secondary" size="sm">View Outcome</Button>

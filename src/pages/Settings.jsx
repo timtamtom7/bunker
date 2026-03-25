@@ -8,6 +8,62 @@ import Button from '../components/Button';
 import { exportData } from '../utils/storage';
 import './Settings.css';
 
+function SlackConnectInput({ onSave, disabled }) {
+  const [url, setUrl] = useState('');
+  const [showInput, setShowInput] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  function handleSave() {
+    if (!url.trim()) return;
+    if (!url.startsWith('https://hooks.slack.com/')) {
+      setError('Invalid Slack webhook URL');
+      return;
+    }
+    setSaving(true);
+    setError('');
+    onSave(url.trim());
+    setSaving(false);
+    setShowInput(false);
+  }
+
+  if (disabled) {
+    return (
+      <Link to="/pricing">
+        <Button size="sm" variant="secondary">Upgrade to connect</Button>
+      </Link>
+    );
+  }
+
+  if (showInput) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', maxWidth: '320px' }}>
+        <input
+          type="url"
+          className="input"
+          placeholder="https://hooks.slack.com/services/..."
+          value={url}
+          onChange={e => { setUrl(e.target.value); setError(''); }}
+          onKeyDown={e => e.key === 'Enter' && handleSave()}
+          autoFocus
+          style={{ fontSize: 'var(--text-sm)' }}
+        />
+        {error && <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-danger)' }}>{error}</span>}
+        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+          <Button size="sm" onClick={handleSave} loading={saving}>Save</Button>
+          <Button size="sm" variant="ghost" onClick={() => setShowInput(false)}>Cancel</Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Button size="sm" variant="secondary" onClick={() => setShowInput(true)}>
+      Connect Slack
+    </Button>
+  );
+}
+
 function PlanBadge({ plan }) {
   const labels = { free: 'Free', pro: 'Pro', teams: 'Teams' };
   const colors = { free: 'badge-active', pro: '', teams: '' };
@@ -312,6 +368,77 @@ export default function Settings() {
             <Button variant="danger" size="sm" onClick={handleClearData}>
               Clear Data
             </Button>
+          </div>
+        </section>
+
+        {/* Integrations */}
+        <section className="settings-section card-glass">
+          <h2 className="settings-section-title">Integrations</h2>
+
+          <div className="settings-row">
+            <div className="settings-row-info">
+              <div className="settings-row-label">
+                Slack
+                {!isPro && <LockBadge />}
+              </div>
+              <div className="settings-row-desc">
+                Post decision summaries to a Slack channel when you make a decision.
+              </div>
+            </div>
+            <div className="integration-slack">
+              {settings.slackWebhook ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                  <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-success)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    Connected
+                  </span>
+                  <Button variant="ghost" size="sm" onClick={() => update({ slackWebhook: null })}>Disconnect</Button>
+                </div>
+              ) : (
+                <SlackConnectInput
+                  onSave={(url) => update({ slackWebhook: url })}
+                  disabled={!isPro}
+                />
+              )}
+            </div>
+          </div>
+
+          <div className="settings-row">
+            <div className="settings-row-info">
+              <div className="settings-row-label">
+                Calendar sync
+                <span style={{ marginLeft: 'var(--space-2)', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', fontWeight: 400 }}>
+                  Always available
+                </span>
+              </div>
+              <div className="settings-row-desc">
+                Add decision deadlines to your calendar via .ics file (Apple Calendar, Google Calendar, Outlook).
+                Available on every decision's detail page.
+              </div>
+            </div>
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-success)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              Available
+            </span>
+          </div>
+
+          <div className="settings-row">
+            <div className="settings-row-info">
+              <div className="settings-row-label">
+                Notion export
+                <span style={{ marginLeft: 'var(--space-2)', fontFamily: 'var(--font-mono)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)', fontWeight: 400 }}>
+                  Always available
+                </span>
+              </div>
+              <div className="settings-row-desc">
+                Export decisions as markdown for easy import into Notion or any notes app.
+                Available on every decision's detail page.
+              </div>
+            </div>
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-success)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              Available
+            </span>
           </div>
         </section>
 
